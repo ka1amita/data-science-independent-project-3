@@ -5,7 +5,24 @@ Let’s break this project down into a couple different parts.
 
 - [ ] Explore tables: Start off by exploring each table separately.
 
-- [ ] How many public high schools are in each zip code? in each state?
+- [ ] How many public high schools are in each zip code?
+```sql
+SELECT zip_code, count(*)
+FROM public_hs_data
+GROUP BY zip_code
+ORDER BY count(*) DESC
+```
+
+in each state?
+
+```sql
+SELECT state_code, count(*)
+FROM public_hs_data
+GROUP BY state_code
+ORDER BY count(*) DESC
+;
+```
+
 The locale_code column in the high school data corresponds to various levels of urbanization as listed below. Use the CASE statement to display the corresponding locale_text and locale_size in your query result.[^1]
 [^1]: Try taking a look at using the substr() function to help look at each part of the locale_code for determining locale_text and locale_size.
 locale_text	locale_code (locale_size)
