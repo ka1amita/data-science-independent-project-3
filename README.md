@@ -79,6 +79,8 @@ WHERE median_household_income != 'NULL'
 group by state_code
 ```
 - [ ] Joint analysis: Join the tables together for even more analysis.
+
+Do characteristics of the zip-code area, such as median household income, influence students’ performance in high school?
 ```sql
 select round(avg(public_hs_data.pct_proficient_math)) as 'math avg', round(avg(public_hs_data.pct_proficient_reading)) as 'reading avg', 
 	CASE
@@ -93,7 +95,6 @@ on census_data.zip_code = public_hs_data.zip_code
 -- WHERE median_household_income != 'NULL'
 GROUP  BY income
 ```
-Do characteristics of the zip-code area, such as median household income, influence students’ performance in high school?
 Hint: One option would be to use the CASE statement to divide the median_household_income into income ranges (e.g., <$50k, $50k-$100k, $100k+) and find the average exam scores for each.
 
 ## Additional Challenges
@@ -102,6 +103,19 @@ Hint: One option would be to use the CASE statement to divide the median_househo
 
 On average, do students perform better on the math or reading exam? Find the number of states where students do better on the math exam, and vice versa.
 Hint: We can use the WITH clause to create a temporary table of average exam scores for each state, with an additional column for whether the average for math or reading is higher. (Note: Some states may not have standardized assessments, so be sure to also include an option for No Exam Data) Then, in your final SELECT statement, find the number of states fitting each condition.
+```sql
+select count(*) as 'number of states',
+case
+	WHEN public_hs_data.pct_proficient_math >= public_hs_data.pct_proficient_reading then 'math better'
+	WHEN public_hs_data.pct_proficient_math <= public_hs_data.pct_proficient_reading then 'reading better'
+-- 	ELSE 'N/A'
+END as 'better'
+from census_data
+JOIN public_hs_data
+on census_data.zip_code = public_hs_data.zip_code
+GROUP BY better
+;
+```
 
 ### Advanced Challenge
 
