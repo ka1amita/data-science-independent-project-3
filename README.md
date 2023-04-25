@@ -30,6 +30,31 @@ City	11 (Large), 12 (Midsize), 13 (Small)
 Suburb	21 (Large), 22 (Midsize), 23 (Small)
 Town	31 (Fringe), 32 (Distant), 33 (Remote)
 Rural	41 (Fringe), 42 (Distant), 43 (Remote)
+
+```sql
+SELECT locale_code, SUBSTR(locale_code,1,1),
+	CASE SUBSTR(locale_code,1,1)
+		WHEN '1' THEN 'City'
+				WHEN '2' THEN 'Suburb'
+						WHEN '3' THEN 'Town'
+						    WHEN '4' THEN 'Rural'
+	END AS locale_text
+FROM public_hs_data
+LIMIT 10
+;
+```
+or
+```sql
+SELECT locale_code,
+CASE
+	WHEN locale_code like '1%' THEN 'City'
+	WHEN locale_code like '2%' THEN 'Suburb'
+	WHEN locale_code like '3%' THEN 'Town'
+	WHEN locale_code like '4%' THEN 'Rural'
+END AS 'locale_text'
+FROM public_hs_data
+```
+
 What is the minimum, maximum, and average median_household_income of the nation? for each state?
 
 - [ ] Joint analysis: Join the tables together for even more analysis.
