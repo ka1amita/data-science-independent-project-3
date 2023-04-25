@@ -34,10 +34,10 @@ Rural	41 (Fringe), 42 (Distant), 43 (Remote)
 ```sql
 SELECT locale_code, SUBSTR(locale_code,1,1),
 	CASE SUBSTR(locale_code,1,1)
-		WHEN '1' THEN 'City'
-				WHEN '2' THEN 'Suburb'
-						WHEN '3' THEN 'Town'
-						    WHEN '4' THEN 'Rural'
+	  WHEN '1' THEN 'City'
+	  WHEN '2' THEN 'Suburb'
+	  WHEN '3' THEN 'Town'
+	  WHEN '4' THEN 'Rural'
 	END AS locale_text
 FROM public_hs_data
 LIMIT 10
@@ -51,12 +51,33 @@ CASE
 	WHEN locale_code like '2%' THEN 'Suburb'
 	WHEN locale_code like '3%' THEN 'Town'
 	WHEN locale_code like '4%' THEN 'Rural'
-END AS 'locale_text'
+END AS 'locale_text',
+
+CASE
+	WHEN locale_code like '1%' or  locale_code like '2%' THEN 
+		CASE substr(locale_code, 2, 1)
+			WHEN '1' THEN 'Large'
+			WHEN '2' THEN 'Midsize'
+			WHEN '3' THEN 'Small'
+		END
+	WHEN locale_code like '3%' or  locale_code like '4%' THEN
+		CASE substr(locale_code, 2, 1)
+			WHEN '1' THEN 'Fringe'
+			WHEN '2' THEN 'Distant'
+			WHEN '3' THEN 'Remote'
+		END 
+END AS 'locale_size'
 FROM public_hs_data
+;
 ```
 
 What is the minimum, maximum, and average median_household_income of the nation? for each state?
-
+```sql
+select state_code, max(median_household_income), avg(median_household_income), min(median_household_income)
+from census_data
+WHERE median_household_income != 'NULL'
+group by state_code
+```
 - [ ] Joint analysis: Join the tables together for even more analysis.
 
 Do characteristics of the zip-code area, such as median household income, influence students’ performance in high school?
