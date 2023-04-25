@@ -79,7 +79,20 @@ WHERE median_household_income != 'NULL'
 group by state_code
 ```
 - [ ] Joint analysis: Join the tables together for even more analysis.
-
+```sql
+select round(avg(public_hs_data.pct_proficient_math)) as 'math avg', round(avg(public_hs_data.pct_proficient_reading)) as 'reading avg', 
+	CASE
+		WHEN median_household_income < 50000 THEN 'low'
+		WHEN median_household_income  >=50000 and  median_household_income <  100000 THEN 'medium'		
+		WHEN median_household_income >= 100000 THEN 'quite high'
+		ELSE 'N/A'
+	END AS 'income'
+from census_data
+JOIN public_hs_data
+on census_data.zip_code = public_hs_data.zip_code
+-- WHERE median_household_income != 'NULL'
+GROUP  BY income
+```
 Do characteristics of the zip-code area, such as median household income, influence students’ performance in high school?
 Hint: One option would be to use the CASE statement to divide the median_household_income into income ranges (e.g., <$50k, $50k-$100k, $100k+) and find the average exam scores for each.
 
