@@ -3,9 +3,9 @@
 ## Basic Requirements
 Let’s break this project down into a couple different parts.
 
-- [ ] Explore tables: Start off by exploring each table separately.
+- [X] Explore tables: Start off by exploring each table separately.
 
-- [ ] How many public high schools are in each zip code?
+- [X] How many public high schools are in each zip code?
 ```sql
 SELECT zip_code, count(*)
 FROM public_hs_data
@@ -13,7 +13,7 @@ GROUP BY zip_code
 ORDER BY count(*) DESC
 ```
 
-in each state?
+- [X] ...in each state?
 
 ```sql
 SELECT state_code, count(*)
@@ -44,6 +44,7 @@ LIMIT 10
 ;
 ```
 or
+
 ```sql
 SELECT locale_code,
 CASE
@@ -78,7 +79,7 @@ from census_data
 WHERE median_household_income != 'NULL'
 group by state_code
 ```
-- [ ] Joint analysis: Join the tables together for even more analysis.
+- [X] Joint analysis: Join the tables together for even more analysis.
 
 Do characteristics of the zip-code area, such as median household income, influence students’ performance in high school?
 ```sql
@@ -101,8 +102,8 @@ Hint: One option would be to use the CASE statement to divide the median_househo
 
 ### Intermediate Challenge
 
-On average, do students perform better on the math or reading exam? Find the number of states where students do better on the math exam, and vice versa.
-Hint: We can use the WITH clause to create a temporary table of average exam scores for each state, with an additional column for whether the average for math or reading is higher. (Note: Some states may not have standardized assessments, so be sure to also include an option for No Exam Data) Then, in your final SELECT statement, find the number of states fitting each condition.
+- [X] On average, do students perform better on the math or reading exam? Find the number of states where students do better on the math exam, and vice versa.[^2]
+[^2]: We can use the WITH clause to create a temporary table of average exam scores for each state, with an additional column for whether the average for math or reading is higher. (Note: Some states may not have standardized assessments, so be sure to also include an option for No Exam Data) Then, in your final SELECT statement, find the number of states fitting each condition.
 ```sql
 select count(*) as 'number of states',
 case
@@ -113,11 +114,42 @@ END as 'better'
 from census_data
 JOIN public_hs_data
 on census_data.zip_code = public_hs_data.zip_code
+where (pct_proficient_math != 'NULL' ) OR (pct_proficient_reading != 'NULL') 
 GROUP BY better
-;
 ```
 
 ### Advanced Challenge
 
-What is the average proficiency on state assessment exams for each zip code, and how do they compare to other zip codes in the same state?
-Note: Exam standards may vary by state, so limit comparison within states. Some states may not have exams. We can use the WITH clause to create a temporary table of exam score statistic for each state (e.g., min/max/avg) - then join it to each zip-code level data to compare.
+- [X] What is the average proficiency on state assessment exams for each zip code, and how do they compare to other zip codes in the same state?
+```sql
+select census_data.zip_code, avg(public_hs_data.pct_proficient_math), avg(public_hs_data.pct_proficient_reading)
+from census_data
+JOIN public_hs_data
+on census_data.zip_code = public_hs_data.zip_code
+where (public_hs_data.pct_proficient_math != 'NULL' ) OR (public_hs_data.pct_proficient_reading != 'NULL') 
+GROUP BY census_data.zip_code
+```
+- [X] Exam standards may vary by state, so limit comparison within states. Some states may not have exams. We can use the WITH clause to create a temporary table of exam score statistic for each state (e.g., min/max/avg) - then join it to each zip-code level data to compare.
+```sql
+with state_stats as (
+select
+	state_code,
+	avg(pct_proficient_math) as 'state_math_avg',
+	avg(pct_proficient_reading) as 'state_read_avg'
+from public_hs_data
+-- where (pct_proficient_math != 'NULL' ) OR (pct_proficient_reading != 'NULL') 
+GROUP BY state_code
+)
+
+select
+	public_hs_data.zip_code,
+	public_hs_data.state_code,
+	avg(public_hs_data.pct_proficient_math) as 'zip_math_avg',
+	avg(public_hs_data.pct_proficient_reading) as 'zip_read_avg',
+	state_stats.state_math_avg,
+	state_stats.state_read_avg
+from public_hs_data
+JOIN state_stats
+ON public_hs_data.state_code = state_stats.state_code
+GROUP BY public_hs_data.zip_code
+```
